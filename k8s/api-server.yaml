@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ores-otel-api-server
+  namespace: ores-otel
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ores-otel-api-server
+  template:
+    metadata:
+      labels:
+        app: ores-otel-api-server
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/ores-otel/ores-otel-api-server.rs:main
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ORES_OTEL_API_BIND
+              value: "0.0.0.0:8080"
+
