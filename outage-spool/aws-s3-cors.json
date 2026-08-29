@@ -1,0 +1,17 @@
+[
+  {
+    "AllowedHeaders": [
+      "content-type"
+    ],
+    "AllowedMethods": [
+      "PUT"
+    ],
+    "AllowedOrigins": [
+      "https://app.example.com"
+    ],
+    "ExposeHeaders": [
+      "ETag"
+    ],
+    "MaxAgeSeconds": 300
+  }
+]

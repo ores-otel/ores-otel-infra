@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../k8s
+patches:
+  - target:
+      kind: ConfigMap
+      name: ores-otel-internal-diagnostics
+    patch: |-
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: ores-otel-internal-diagnostics
+      data:
+        ORES_INTERNAL_DIAGNOSTICS_PROVIDER: aws_cloudwatch_logs
+        AWS_REGION: us-east-1
+        ORES_INTERNAL_DIAGNOSTICS_AWS_LOG_GROUP: ores-otel/internal
+        ORES_INTERNAL_DIAGNOSTICS_AWS_LOG_STREAM: ores-otel-api-server
+  - target:
+      kind: ServiceAccount
+      name: ores-otel-internal-diagnostics
+    patch: |-
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: ores-otel-internal-diagnostics
+        annotations:
+          eks.amazonaws.com/role-arn: arn:aws:iam::000000000000:role/ores-otel-internal-diagnostics
