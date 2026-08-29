@@ -1,0 +1,22 @@
+{
+  "cors": {
+    "corsRules": [
+      {
+        "allowedOrigins": [
+          "https://app.example.com"
+        ],
+        "allowedMethods": [
+          "PUT"
+        ],
+        "maxAgeInSeconds": 300,
+        "exposedHeaders": [
+          "ETag"
+        ],
+        "allowedHeaders": [
+          "content-type",
+          "x-ms-blob-type"
+        ]
+      }
+    ]
+  }
+}

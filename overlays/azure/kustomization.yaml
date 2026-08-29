@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../k8s
+patches:
+  - target:
+      kind: ConfigMap
+      name: ores-otel-internal-diagnostics
+    patch: |-
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: ores-otel-internal-diagnostics
+      data:
+        ORES_INTERNAL_DIAGNOSTICS_PROVIDER: azure_monitor
+        ORES_INTERNAL_DIAGNOSTICS_AZURE_DCE_ENDPOINT: https://example-ingest.eastus-1.ingest.monitor.azure.com
+        ORES_INTERNAL_DIAGNOSTICS_AZURE_DCR_ID: dcr-00000000000000000000000000000000
+        ORES_INTERNAL_DIAGNOSTICS_AZURE_STREAM: Custom-OresInternal_CL
+  - target:
+      kind: ServiceAccount
+      name: ores-otel-internal-diagnostics
+    patch: |-
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: ores-otel-internal-diagnostics
+        annotations:
+          azure.workload.identity/client-id: 00000000-0000-0000-0000-000000000000
+          azure.workload.identity/tenant-id: 00000000-0000-0000-0000-000000000000
+  - target:
+      kind: Deployment
+      name: ores-otel-api-server
+    patch: |-
+      - op: add
+        path: /spec/template/metadata/labels/azure.workload.identity~1use
+        value: "true"

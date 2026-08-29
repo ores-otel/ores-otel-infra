@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - api-server.yaml
+  - web-server.yaml
+  - internal-diagnostics-configmap.yaml
+  - internal-diagnostics-service-account.yaml
+patches:
+  - target:
+      kind: Deployment
+      name: ores-otel-api-server
+    patch: |-
+      - op: add
+        path: /spec/template/spec/serviceAccountName
+        value: ores-otel-internal-diagnostics
+      - op: add
+        path: /spec/template/spec/containers/0/envFrom
+        value:
+          - configMapRef:
+              name: ores-otel-internal-diagnostics

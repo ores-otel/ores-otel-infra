@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../k8s
+patches:
+  - target:
+      kind: ConfigMap
+      name: ores-otel-internal-diagnostics
+    patch: |-
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: ores-otel-internal-diagnostics
+      data:
+        ORES_INTERNAL_DIAGNOSTICS_PROVIDER: google_cloud_logging
+        GOOGLE_CLOUD_PROJECT: example-project
+        ORES_INTERNAL_DIAGNOSTICS_GCP_LOG_ID: ores-internal
+  - target:
+      kind: ServiceAccount
+      name: ores-otel-internal-diagnostics
+    patch: |-
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: ores-otel-internal-diagnostics
+        annotations:
+          iam.gke.io/gcp-service-account: ores-otel-internal-diagnostics@example-project.iam.gserviceaccount.com
