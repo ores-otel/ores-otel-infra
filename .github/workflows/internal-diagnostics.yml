@@ -19,13 +19,55 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Check out repository
+      - name: Check out exact candidate without persisted credentials
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+          show-progress: false
+
+      - name: Verify exact candidate revision
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
 
       - name: Verify runner tools
         run: |
           command -v python3
           command -v kubectl
+          command -v jq
 
       - name: Validate overlays and outage-spool policy
         run: python3 scripts/validate-internal-diagnostics.py
+
+      - name: Validate Cloud Run deployment contract when present
+        shell: bash
+        run: |
+          set -euo pipefail
+          manifest=deploy/gcp-cloud-run.json
+          if [[ ! -f "$manifest" ]]; then
+            exit 0
+          fi
+          jq -e '
+            .schemaVersion == "ores.gcp-cloud-run.org.v1" and
+            .organization == "ores-otel" and
+            .infraRepository == "ores-otel/ores-otel-infra" and
+            .canonicalDeploymentRepository == "ORESoftware/k8s-cluster" and
+            .gcp.state == "planned" and
+            (.services | length == 4) and
+            ([.services[].role] | sort == ["admin-api-server","admin-web-server","api-server","web-server"]) and
+            (([.services[].repository] | length) == ([.services[].repository] | unique | length)) and
+            .probes.liveness.path == "/healthz" and
+            .probes.liveness.dependencyFree == true and
+            .probes.readiness.path == "/readyz" and
+            .probes.readiness.failureStatus == 503 and
+            .probes.metrics.path == "/metrics" and
+            .probes.metrics.exposure == "private" and
+            .runtime.minInstances == 0 and
+            .runtime.maxInstances >= 1 and
+            .runtime.imagePolicy == "digest-only" and
+            .runtime.serviceAccountPolicy == "per-service" and
+            .neon.state == "pending-external-provisioning"
+          ' "$manifest" >/dev/null
