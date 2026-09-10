@@ -47,7 +47,7 @@ jobs:
             .gcp.state == "planned" and
             (.services | length == 4) and
             ([.services[].role] | sort == ["admin-api-server","admin-web-server","api-server","web-server"]) and
-            ([.services[].repository] | length == ([.services[].repository] | unique | length)) and
+            (([.services[].repository] | length) == ([.services[].repository] | unique | length)) and
             .probes.liveness.path == "/healthz" and
             .probes.liveness.dependencyFree == true and
             .probes.readiness.path == "/readyz" and
