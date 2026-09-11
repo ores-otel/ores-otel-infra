@@ -1,0 +1,16 @@
+{
+  "contract": "SharedAuthTopology",
+  "version": 1,
+  "githubOrg": "ores-otel",
+  "integration": "direct",
+  "supabase": {"runtimeOrg":"ores-otel","targetOrg":"ores-otel","placement":"dedicated-org","schema":"ores_otel","authDatabaseUrlEnv":"SUPABASE_AUTH_DATABASE_URL","adminDatabaseUrlEnv":"SUPABASE_ADMIN_DATABASE_URL"},
+  "neon": {"runtimeOrg":"ores-otel","targetOrg":"ores-otel","placement":"dedicated-org","schema":"ores_otel","authDatabaseUrlEnv":"NEON_AUTH_DATABASE_URL","adminDatabaseUrlEnv":"NEON_ADMIN_DATABASE_URL"},
+  "requestPolicy": {"requireBothProvidersConfigured":true,"customerMode":"availability-first","adminMode":"strict-paired","sensitiveMode":"strict-paired","rejectProviderDisagreement":true},
+  "roles": {
+    "webServer": {"dataPlane":"customer-auth","supabaseDatabaseUrlEnv":"SUPABASE_AUTH_DATABASE_URL","neonDatabaseUrlEnv":"NEON_AUTH_DATABASE_URL"},
+    "apiServer": {"dataPlane":"customer-auth","supabaseDatabaseUrlEnv":"SUPABASE_AUTH_DATABASE_URL","neonDatabaseUrlEnv":"NEON_AUTH_DATABASE_URL"},
+    "adminWebServer": {"dataPlane":"admin-auth","supabaseDatabaseUrlEnv":"SUPABASE_ADMIN_DATABASE_URL","neonDatabaseUrlEnv":"NEON_ADMIN_DATABASE_URL"},
+    "adminApiServer": {"dataPlane":"admin-auth","supabaseDatabaseUrlEnv":"SUPABASE_ADMIN_DATABASE_URL","neonDatabaseUrlEnv":"NEON_ADMIN_DATABASE_URL"}
+  },
+  "auditRepositories": ["ores-otel/ores-otel-web-server.rs","ores-otel/ores-otel-api-server.rs","ores-otel/ores-otel-admin-web-server.rs","ores-otel/ores-otel-admin-api-server.rs","ores-otel/ores-otel-infra"]
+}
