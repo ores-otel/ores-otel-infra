@@ -1,0 +1,72 @@
+# Provider-native examples for ores-otel/ores-otel-infra. Replace CHANGE_ME values and
+# use pinned provider packages. No credentials or live secret material belong here.
+---
+apiVersion: ecr.aws.upbound.io/v1beta1
+kind: Repository
+metadata:
+  name: ores-otel-lambda
+  labels:
+    app.kubernetes.io/managed-by: crossplane
+    oci.oresoftware.dev/github-org: ores-otel
+spec:
+  deletionPolicy: Orphan
+  forProvider:
+    region: us-east-1
+    imageTagMutability: IMMUTABLE
+    imageScanningConfiguration:
+      - scanOnPush: true
+    encryptionConfiguration:
+      - encryptionType: AES256
+    tags:
+      github-org: ores-otel
+      github-repo: ores-otel-infra
+      oci-role: lambda
+  providerConfigRef:
+    name: aws-default
+---
+apiVersion: artifact.gcp.upbound.io/v1beta1
+kind: RegistryRepository
+metadata:
+  name: ores-otel-oci
+  labels:
+    app.kubernetes.io/managed-by: crossplane
+    oci.oresoftware.dev/github-org: ores-otel
+spec:
+  deletionPolicy: Orphan
+  forProvider:
+    project: CHANGE_ME_GCP_PROJECT
+    location: us-central1
+    repositoryId: ores-otel-oci
+    format: DOCKER
+    mode: STANDARD_REPOSITORY
+    dockerConfig:
+      - immutableTags: true
+    cleanupPolicyDryRun: true
+    labels:
+      github-org: ores-otel
+      github-repo: ores-otel-infra
+      oci-role: cloud-run
+  providerConfigRef:
+    name: gcp-default
+---
+apiVersion: containerregistry.azure.upbound.io/v1beta1
+kind: Registry
+metadata:
+  name: oresoteloci
+  labels:
+    app.kubernetes.io/managed-by: crossplane
+    oci.oresoftware.dev/github-org: ores-otel
+spec:
+  deletionPolicy: Orphan
+  forProvider:
+    location: East US
+    resourceGroupName: CHANGE_ME_RESOURCE_GROUP
+    sku: Basic
+    adminEnabled: false
+    publicNetworkAccessEnabled: true
+    tags:
+      github-org: ores-otel
+      github-repo: ores-otel-infra
+      oci-role: azure-mirror
+  providerConfigRef:
+    name: azure-default
