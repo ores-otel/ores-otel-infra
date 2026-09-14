@@ -8,10 +8,12 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+env:
+  ZED_CLI_REV: a1c5b7a3c72b957944b76911fcbc723dd9c16541
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -21,8 +23,27 @@ jobs:
         env:
           EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-      - name: Install pinned ores-cli
-        run: cargo install --git https://github.com/ORESoftware/ores-cli --rev dacbe8e5dc1eb4b5492031ce5a45b9b1a8c5251b --locked --bin oresc
+      - name: Install ores-cli through pinned Zed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --filter=blob:none https://github.com/zed-pkg/zed-cli.git "$RUNNER_TEMP/zed-cli"
+          git -C "$RUNNER_TEMP/zed-cli" checkout --detach "$ZED_CLI_REV"
+          (cd "$RUNNER_TEMP/zed-cli" && cargo build --locked --release --bin zed)
+          ZED="$RUNNER_TEMP/zed-cli/target/release/zed"
+          TOOL_WS="$RUNNER_TEMP/ores-cli-smoke"
+          mkdir -p "$TOOL_WS"
+          installed=false
+          for attempt in 1 2 3; do
+            if (cd "$TOOL_WS" && "$ZED" install oresoftware/ores-cli@=0.1.0 --allow-build --adapter none); then
+              installed=true
+              break
+            fi
+            sleep $((attempt * 5))
+          done
+          test "$installed" = true
+          echo "ZED_BIN=$ZED" >> "$GITHUB_ENV"
+          echo "ORESC_TOOL_WORKSPACE=$TOOL_WS" >> "$GITHUB_ENV"
       - name: Validate six roots
         run: ./scripts/validate-infra-provider-roots.sh
       - name: Set up tested Node runtime
