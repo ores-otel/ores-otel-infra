@@ -34,7 +34,7 @@ jobs:
         with:
           node-version: 22.16.0
       - name: TJSV peer-authority parity
-        uses: ORESoftware/typespec-json-schema-validator@eac61635922c244c7a37829c63d0966de44ff800
+        uses: ORESoftware/typespec-json-schema-validator@bd503465dab8c5148fee722b443ed04ff126c9bf
         with:
           typespec: contracts/infra-gitops/main.tsp
           schema: contracts/infra-gitops/authored.schema.json
