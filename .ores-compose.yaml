@@ -1,6 +1,11 @@
 schema_version: ores.compose.v1
+# ores-compose-nano-id: akVe7tl_78K8wNd0sOXKf
 project: ores-otel
 allow_lazy_start: false
+source:
+  repository: https://github.com/ores-otel/ores-otel-monorepo.git
+  commit: 6f391d13e5d59b6a1335563b49392ce0412f5ca2
+  checkout_dir: .ores/sources/ores-otel-monorepo
 # Requires ORESoftware/ores-compose#156. Configure ORES_LOCAL_OBJECT_ACCESS_KEY,
 # ORES_LOCAL_OBJECT_SECRET_KEY and ORES_LOCAL_MC_HOST in project-root .env.
 services:
