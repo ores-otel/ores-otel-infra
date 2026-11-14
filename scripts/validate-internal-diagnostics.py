@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+from urllib.parse import urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -77,9 +78,25 @@ def load_json(path: str) -> object:
 
 def validate_origin(origin: object, path: str) -> None:
     require(isinstance(origin, str), f"{path}: origin must be a string")
-    require(origin.startswith("https://"), f"{path}: origin must use HTTPS")
-    require("*" not in origin, f"{path}: wildcard origin is forbidden")
-    require(origin.count("/") == 2, f"{path}: origin must not contain a path")
+    require(len(origin) <= 2048 and origin.startswith("https://"), f"{path}: require HTTPS origin")
+    require(not any(char.isspace() or char == "\\\\" for char in origin), f"{path}: bad origin")
+    parsed = urlsplit(origin)
+    require(
+        parsed.scheme == "https"
+        and parsed.hostname is not None
+        and parsed.username is None
+        and parsed.password is None
+        and not parsed.path
+        and not parsed.query
+        and not parsed.fragment
+        and origin == f"https://{parsed.netloc}"
+        and "*" not in parsed.netloc,
+        f"{path}: expected bare HTTPS origin without credentials, paths, queries or fragments",
+    )
+    try:
+        _ = parsed.port  # Reject malformed or out-of-range ports.
+    except ValueError as error:
+        raise AssertionError(f"{path}: invalid port") from error
 
 
 def validate_aws_cors() -> None:
