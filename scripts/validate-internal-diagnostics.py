@@ -79,7 +79,7 @@ def load_json(path: str) -> object:
 def validate_origin(origin: object, path: str) -> None:
     require(isinstance(origin, str), f"{path}: origin must be a string")
     require(len(origin) <= 2048 and origin.startswith("https://"), f"{path}: require HTTPS origin")
-    require(not any(char.isspace() or char == "\\\\" for char in origin), f"{path}: bad origin")
+    require(not any(char.isspace() or char == chr(92) for char in origin), f"{path}: bad origin")
     parsed = urlsplit(origin)
     require(
         parsed.scheme == "https"
